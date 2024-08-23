@@ -2,10 +2,13 @@
 	"Meta":
 	{
 		"SpriteSize": 64,
+		"Seed": 2,
+		"Rows": 41,
+		"Columns": 72
 	},
 	"Tiles":
 	[
-		"None", "Up", "Right", "Down", "Left"
+		"None", "Up", "Right", "Down", "Left", "Straight_V", "Straight_H"
 	],
 	"None":
 	{
@@ -13,19 +16,19 @@
 		"Weight": 1,
 		"North":
 		[
-			"None", "Up", "Right", "Down", "Left",
+			"None", "Up", "Right", "Down", "Left", "Straight_H"
 		],
 		"East":
 		[
-			"None", "Up", "Right", "Down", "Left",
+			"None", "Up", "Right", "Down", "Left", "Straight_V"
 		],
 		"South":
 		[
-			"None", "Up", "Right", "Down", "Left",
+			"None", "Up", "Right", "Down", "Left", "Straight_H",
 		],
 		"West":
 		[
-			"None", "Up", "Right", "Down", "Left",
+			"None", "Up", "Right", "Down", "Left", "Straight_V"
 		]
 	},
 	"Up":
@@ -34,19 +37,19 @@
 		"Weight": 1,
 		"North":
 		[
-			"Right", "Down", "Left",
+			"Right", "Down", "Left", "Straight_V"
 		],
 		"East":
 		[
-			"Up", "Down", "Left",
+			"Up", "Down", "Left", "Straight_H"
 		],
 		"South":
 		[
-			"None", "Down",
+			"None", "Down", "Straight_H"
 		],
 		"West":
 		[
-			"Up", "Right", "Down",
+			"Up", "Right", "Down", "Straight_H"
 		]
 	},
 	"Right":
@@ -55,19 +58,19 @@
 		"Weight": 1,
 		"North":
 		[
-			"Right", "Down", "Left",
+			"Right", "Down", "Left", "Straight_V"
 		],
 		"East":
 		[
-			"Up", "Down", "Left",
+			"Up", "Down", "Left", "Straight_H"
 		],
 		"South":
 		[
-			"Up", "Right", "Left",
+			"Up", "Right", "Left", "Straight_V"
 		],
 		"West":
 		[
-			"None", "Left",
+			"None", "Left", "Straight_V"
 		]
 	},
 	"Down":
@@ -76,19 +79,19 @@
 		"Weight": 1,
 		"North":
 		[
-			"None", "Up",
+			"None", "Up", "Straight_H"
 		],
 		"East":
 		[
-			 "Up", "Down", "Left",
+			 "Up", "Down", "Left", "Straight_H"
 		],
 		"South":
 		[
-			"Up", "Right", "Left",
+			"Up", "Right", "Left", "Straight_V"
 		],
 		"West":
 		[
-			"Up", "Right", "Down",
+			"Up", "Right", "Down", "Straight_H"
 		]
 	},
 	"Left":
@@ -97,19 +100,61 @@
 		"Weight": 1,
 		"North":
 		[
-			"Right", "Down", "Left",
+			"Right", "Down", "Left", "Straight_V"
 		],
 		"East":
 		[
-			"None", "Right",
+			"None", "Right", "Straight_V"
 		],
 		"South":
 		[
-			"Up", "Right", "Left",
+			"Up", "Right", "Left", "Straight_V"
 		],
 		"West":
 		[
-			"Up", "Right", "Down",
+			"Up", "Right", "Down", "Straight_H"
 		]
-	}
+	},
+	"Straight_H":
+	{
+		"Sprite": "Straight_Horizontal.png",
+		"Weight": 1,
+		"North":
+		[
+			"None", "Up", "Straight_H"
+		],
+		"East":
+		[
+			"Straight_H", "Up", "Down", "Left"
+		],
+		"South":
+		[
+			"None", "Down", "Straight_H", 
+		],
+		"West":
+		[
+			"Straight_H", "Up", "Down", "Right"
+		]
+	},
+	"Straight_V":
+	{
+		"Sprite": "Straight_Vertical.png",
+		"Weight": 1,
+		"North":
+		[
+			"Straight_V", "Right", "Down", "Left"
+		],
+		"East":
+		[
+			"None", "Right", "Straight_V"
+		],
+		"South":
+		[
+			"Straight_V", "Up", "Left", "Right"
+		],
+		"West":
+		[
+			"None", "Left", "Straight_V"
+		]
+	},
 }
