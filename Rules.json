@@ -1,0 +1,115 @@
+{
+	"Meta":
+	{
+		"SpriteSize": 64,
+	},
+	"Tiles":
+	[
+		"None", "Up", "Right", "Down", "Left"
+	],
+	"None":
+	{
+		"Sprite": "None.png",
+		"Weight": 1,
+		"North":
+		[
+			"None", "Up", "Right", "Down", "Left",
+		],
+		"East":
+		[
+			"None", "Up", "Right", "Down", "Left",
+		],
+		"South":
+		[
+			"None", "Up", "Right", "Down", "Left",
+		],
+		"West":
+		[
+			"None", "Up", "Right", "Down", "Left",
+		]
+	},
+	"Up":
+	{
+		"Sprite": "Up.png",
+		"Weight": 1,
+		"North":
+		[
+			"Right", "Down", "Left",
+		],
+		"East":
+		[
+			"Up", "Down", "Left",
+		],
+		"South":
+		[
+			"None", "Down",
+		],
+		"West":
+		[
+			"Up", "Right", "Down",
+		]
+	},
+	"Right":
+	{
+		"Sprite": "Right.png",
+		"Weight": 1,
+		"North":
+		[
+			"Right", "Down", "Left",
+		],
+		"East":
+		[
+			"Up", "Down", "Left",
+		],
+		"South":
+		[
+			"Up", "Right", "Left",
+		],
+		"West":
+		[
+			"None", "Left",
+		]
+	},
+	"Down":
+	{
+		"Sprite": "Down.png",
+		"Weight": 1,
+		"North":
+		[
+			"None", "Up",
+		],
+		"East":
+		[
+			 "Up", "Down", "Left",
+		],
+		"South":
+		[
+			"Up", "Right", "Left",
+		],
+		"West":
+		[
+			"Up", "Right", "Down",
+		]
+	},
+	"Left":
+	{
+		"Sprite": "Left.png",
+		"Weight": 1,
+		"North":
+		[
+			"Right", "Down", "Left",
+		],
+		"East":
+		[
+			"None", "Right",
+		],
+		"South":
+		[
+			"Up", "Right", "Left",
+		],
+		"West":
+		[
+			"Up", "Right", "Down",
+		]
+	}
+}
