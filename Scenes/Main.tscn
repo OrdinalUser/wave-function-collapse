@@ -26,9 +26,9 @@ color = Color(0.176471, 0.176471, 0.176471, 1)
 [node name="WaveFunctionCollapse" type="Node2D" parent="."]
 scale = Vector2(0.25, 0.25)
 script = ExtResource("2_h4vre")
+RulesetFilePath = "res://Rules/RulesC.json"
 
 [node name="Timer" type="Timer" parent="."]
-wait_time = 0.25
 autostart = true
 
 [connection signal="timeout" from="Timer" to="WaveFunctionCollapse" method="OnTimerTimeout"]

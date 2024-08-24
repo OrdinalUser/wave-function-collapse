@@ -2,7 +2,7 @@
 	"Meta":
 	{
 		"SpriteSize": 64,
-		"Seed": 2,
+		"Seed": 4,
 		"Rows": 41,
 		"Columns": 72
 	},

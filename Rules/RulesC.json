@@ -1,0 +1,265 @@
+{
+	"Meta":
+	{
+		"SpriteSize": 64,
+		"Seed": 0,
+		"Rows": 41,
+		"Columns": 72
+	},
+	"Tiles":
+	[
+		"None", "Up", "Right", "Down", "Left", "Straight_V", "Straight_H", "Cross", "TurnLU", "TurnLD", "TurnRU", "TurnRD"
+	],
+	"None":
+	{
+		"Sprite": "None.png",
+		"Weight": 50,
+		"North":
+		[
+			"None", "Up", "Straight_H", "TurnLU", "TurnRU"
+		],
+		"East":
+		[
+			"None", "Right", "Straight_V", "TurnRU", "TurnRD"
+		],
+		"South":
+		[
+			"None", "Down", "Straight_H", "TurnLD", "TurnRD"
+		],
+		"West":
+		[
+			"None", "Left", "Straight_V", "TurnLD", "TurnLU"
+		]
+	},
+	"Up":
+	{
+		"Sprite": "Up.png",
+		"Weight": 4,
+		"North":
+		[
+			"Straight_V", "TurnLD", "TurnRD", "Cross", "Left", "Right", "Down"
+		],
+		"East":
+		[
+			"Straight_H", "TurnLD", "TurnLU", "Cross", "Up", "Down", "Left"
+		],
+		"South":
+		[
+			"None","Straight_H", "TurnLD", "TurnRD", "Down"
+		],
+		"West":
+		[
+			"Straight_H", "TurnRU", "TurnRD", "Cross", "Up", "Right", "Down"
+		]
+	},
+	"Right":
+	{
+		"Sprite": "Right.png",
+		"Weight": 4,
+		"North":
+		[
+			"Straight_V", "TurnLD", "TurnRD", "Cross", "Left", "Right", "Down"
+		],
+		"East":
+		[
+			"Straight_H", "TurnLU", "TurnLD", "Cross", "Left", "Up", "Down"
+		],
+		"South":
+		[
+			"Straight_V", "TurnRU", "TurnLU", "Cross", "Up", "Right", "Left"
+		],
+		"West":
+		[
+			"None", "Straight_V", "TurnLU", "TurnLD", "Left"
+		]
+	},
+	"Down":
+	{
+		"Sprite": "Down.png",
+		"Weight": 4,
+		"North":
+		[
+			"None", "Straight_H", "TurnLU", "TurnRU", "Up"
+		],
+		"East":
+		[
+			 "Straight_H", "TurnLU", "TurnLD", "Cross", "Up", "Down", "Left"
+		],
+		"South":
+		[
+			 "Straight_V", "TurnLU", "TurnRU", "Cross", "Up", "Left", "Right"
+		],
+		"West":
+		[
+			"Straight_H", "TurnRU", "TurnRD", "Cross", "Up", "Right", "Down"
+		]
+	},
+	"Left":
+	{
+		"Sprite": "Left.png",
+		"Weight": 4,
+		"North":
+		[
+			"Straight_V", "TurnLD", "TurnRD", "Cross", "Right", "Down", "Left"
+		],
+		"East":
+		[
+			"None", "Straight_V", "TurnRU", "TurnRD", "Right"
+		],
+		"South":
+		[
+			"Straight_V", "TurnLU", "TurnRU", "Cross", "Up", "Right", "Left"
+		],
+		"West":
+		[
+			"Straight_H", "TurnRU", "TurnRD", "Cross", "Up", "Right", "Down"
+		]
+	},
+	"Straight_H":
+	{
+		"Sprite": "Straight_Horizontal.png",
+		"Weight": 30,
+		"North":
+		[
+			"None", "TurnRU", "TurnLU"
+		],
+		"East":
+		[
+			"Up", "Down", "Left", "Cross", "TurnLU", "TurnLD", "Straight_H"
+		],
+		"South":
+		[
+			"None", "TurnRD", "TurnLD"
+		],
+		"West":
+		[
+			"Up", "Down", "Right", "Cross", "TurnRU", "TurnRD", "Straight_H"
+		]
+	},
+	"Straight_V":
+	{
+		"Sprite": "Straight_Vertical.png",
+		"Weight": 30,
+		"North":
+		[
+			"Right", "Down", "Left", "Cross", "TurnLD", "TurnRD", "Straight_V"
+		],
+		"East":
+		[
+			"None", "TurnRU", "TurnRD"
+		],
+		"South":
+		[
+			"Up", "Left", "Right", "Cross", "TurnLU", "TurnRU", "Straight_V"
+		],
+		"West":
+		[
+			"None", "TurnLU", "TurnLD"
+		]
+	},
+	"Cross":
+	{
+		"Sprite": "Cross.png",
+		"Weight": 1,
+		"North":
+		[
+			"Straight_V", "TurnLD", "TurnRD", "Right", "Left", "Down", "Cross"
+		],
+		"East":
+		[
+			"Straight_H", "TurnLU", "TurnLD", "Up", "Down", "Left", "Cross"
+		],
+		"South":
+		[
+			"Straight_V", "TurnRU", "TurnLU", "Up", "Right", "Left", "Cross"
+		],
+		"West":
+		[
+			"Straight_H", "TurnRU", "TurnRD", "Up", "Right", "Down", "Cross"
+		]
+	},
+	"TurnLU":
+	{
+		"Sprite": "Turn_Left_Up.png",
+		"Weight": 1,
+		"North":
+		[
+			"Straight_V", "TurnLD", "TurnRD", "Down", "Left", "Right", "Cross"
+		],
+		"East":
+		[
+			"None", "TurnRU", "TurnRD", "Right", "Straight_V"
+		],
+		"South":
+		[
+			"None", "TurnLD", "TurnRD", "Straight_H", "Down"
+		],
+		"West":
+		[
+			"Straight_H", "TurnRU", "TurnRD", "Up", "Down", "Right", "Cross",
+		]
+	},
+	"TurnLD":
+	{
+		"Sprite": "Turn_Left_Down.png",
+		"Weight": 1,
+		"North":
+		[
+			"None", "TurnLU", "TurnRU", "Up", "Straight_H"
+		],
+		"East":
+		[
+			"None", "Straight_V", "Right", "TurnRU", "TurnRD"
+		],
+		"South":
+		[
+			"Straight_V", "TurnRU", "TurnLU", "Up", "Left", "Right", "Cross"
+		],
+		"West":
+		[
+			"Straight_H", "TurnRU", "TurnRD", "Cross", "Right", "Up", "Down"
+		]
+	},
+	"TurnRD":
+	{
+		"Sprite": "Turn_Right_Down.png",
+		"Weight": 1,
+		"North":
+		[
+			"None", "TurnLU", "TurnRU", "Up", "Straight_H"
+		],
+		"East":
+		[
+			"Straight_H", "Cross", "Left", "Up", "Down", "TurnLU", "TurnLD"
+		],
+		"South":
+		[
+			"Straight_V", "Cross", "Left", "Up", "Right", "TurnLU", "TurnRU"
+		],
+		"West":
+		[
+			"None", "TurnLU", "TurnLD", "Left", "Straight_V"
+		]
+	},
+	"TurnRU":
+	{
+		"Sprite": "Turn_Right_Up.png",
+		"Weight": 1,
+		"North":
+		[
+			"Straight_V", "TurnLD", "TurnRD", "Cross", "Left", "Right", "Down"
+		],
+		"East":
+		[
+			"Straight_H", "TurnLU", "TurnLD", "Cross", "Left", "Up", "Down"
+		],
+		"South":
+		[
+			"None", "TurnLD", "TurnRD", "Down", "Straight_H"
+		],
+		"West":
+		[
+			"None", "TurnLU", "TurnLD", "Left", "Straight_V"
+		]
+	},
+}

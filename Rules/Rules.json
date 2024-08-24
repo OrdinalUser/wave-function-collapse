@@ -16,19 +16,19 @@
 		"Weight": 1,
 		"North":
 		[
-			"None", "Up", "Right", "Down", "Left", "Straight_H"
+			"None", "Up", "Straight_H"
 		],
 		"East":
 		[
-			"None", "Up", "Right", "Down", "Left", "Straight_V"
+			"None", "Right", "Straight_V"
 		],
 		"South":
 		[
-			"None", "Up", "Right", "Down", "Left", "Straight_H",
+			"None", "Down", "Straight_H",
 		],
 		"West":
 		[
-			"None", "Up", "Right", "Down", "Left", "Straight_V"
+			"None", "Left", "Straight_V"
 		]
 	},
 	"Up":

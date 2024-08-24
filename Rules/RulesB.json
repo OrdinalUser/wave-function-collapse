@@ -1,0 +1,160 @@
+{
+	"Meta":
+	{
+		"SpriteSize": 64,
+		"Seed": 2,
+		"Rows": 41,
+		"Columns": 72
+	},
+	"Tiles":
+	[
+		"None", "Up", "Right", "Down", "Left", "Straight_V", "Straight_H"
+	],
+	"None":
+	{
+		"Sprite": "None.png",
+		"Weight": 1,
+		"North":
+		[
+			"None", "Up", "Straight_H"
+		],
+		"East":
+		[
+			"None", "Right", "Straight_V"
+		],
+		"South":
+		[
+			"None", "Down", "Straight_H",
+		],
+		"West":
+		[
+			"None", "Left", "Straight_V"
+		]
+	},
+	"Up":
+	{
+		"Sprite": "Up.png",
+		"Weight": 1,
+		"North":
+		[
+			"Straight_V"
+		],
+		"East":
+		[
+			"Straight_H"
+		],
+		"South":
+		[
+			"None","Straight_H"
+		],
+		"West":
+		[
+			"Straight_H"
+		]
+	},
+	"Right":
+	{
+		"Sprite": "Right.png",
+		"Weight": 1,
+		"North":
+		[
+			"Straight_V"
+		],
+		"East":
+		[
+			"Straight_H"
+		],
+		"South":
+		[
+			"Straight_V"
+		],
+		"West":
+		[
+			"None", "Straight_V"
+		]
+	},
+	"Down":
+	{
+		"Sprite": "Down.png",
+		"Weight": 1,
+		"North":
+		[
+			"None", "Straight_H"
+		],
+		"East":
+		[
+			 "Up", "Straight_H"
+		],
+		"South":
+		[
+			 "Straight_V"
+		],
+		"West":
+		[
+			"Straight_H"
+		]
+	},
+	"Left":
+	{
+		"Sprite": "Left.png",
+		"Weight": 1,
+		"North":
+		[
+			"Straight_V"
+		],
+		"East":
+		[
+			"None", "Straight_V"
+		],
+		"South":
+		[
+			"Straight_V"
+		],
+		"West":
+		[
+			"Straight_H"
+		]
+	},
+	"Straight_H":
+	{
+		"Sprite": "Straight_Horizontal.png",
+		"Weight": 1,
+		"North":
+		[
+			"None",
+		],
+		"East":
+		[
+			"Straight_H", "Up", "Down", "Left"
+		],
+		"South":
+		[
+			"None",
+		],
+		"West":
+		[
+			"Straight_H", "Up", "Down", "Right"
+		]
+	},
+	"Straight_V":
+	{
+		"Sprite": "Straight_Vertical.png",
+		"Weight": 1,
+		"North":
+		[
+			"Straight_V", "Right", "Down", "Left"
+		],
+		"East":
+		[
+			"None",
+		],
+		"South":
+		[
+			"Straight_V", "Up", "Left", "Right"
+		],
+		"West":
+		[
+			"None",
+		]
+	},
+}
