@@ -3,9 +3,10 @@
 	{
 		"SpriteSize": 64,
 		"Seed": 5,
-		"Rows": 50,
-		"Columns": 50,
+		"Rows": 20,
+		"Columns": 20,
 		"3D": true,
+		"MeshSize": 6.4,
 	},
 	"Tiles":
 	[

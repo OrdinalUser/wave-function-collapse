@@ -31,6 +31,7 @@ public partial class Wfc : Node
         public int spriteSize;
 
         public bool is3D;
+        public float meshSize;
     }
 
     public struct Tile
@@ -80,9 +81,11 @@ public partial class Wfc : Node
 
     /* 3D render stuff */
     private List<Mesh> m_ModelMeshes;
-    private MeshInstance3D[,] m_MeshGrid;
     private Vector3 m_TileOffset;
     Node3D m_TileParent;
+
+    GridMap m_GridMap;
+    MeshLibrary m_MeshLibrary;
 
     bool LoadConfig()
     {
@@ -118,7 +121,9 @@ public partial class Wfc : Node
         m_Random = new Random(m_Config.seed);
         m_Config.rows = meta["Rows"].AsInt32();
         m_Config.columns = meta["Columns"].AsInt32();
+
         m_Config.is3D = meta["3D"].AsBool();
+        m_Config.meshSize = (float)meta["MeshSize"];
 
         /* Load Tile Names */
         m_NamedKnownTiles = new Dictionary<string, int>();
@@ -187,30 +192,22 @@ public partial class Wfc : Node
 
     bool SetupTileMap3D()
     {
-        m_ModelMeshes = new List<Mesh>();
-        m_MeshGrid = new MeshInstance3D[m_Config.columns, m_Config.rows];
-        m_TileOffset = new Vector3(6.4f, 0, 6.4f);
-        
-        m_TileParent = new Node3D();
-        m_TileParent.Name = "Tiles";
-        AddChild(m_TileParent);
-
-        for (int x = 0; x < m_Config.columns; x++)
-        {
-            for (int y = 0; y < m_Config.rows; y++)
-            {
-                m_MeshGrid[x, y] = null;
-            }
-        }
-
+        m_MeshLibrary = new MeshLibrary();
         for (int i = 0; i < m_KnownTiles.Length; i++)
         {
             ref TilePrototype tile = ref m_KnownTiles[i];
-            
-            ArrayMesh mesh = (ArrayMesh)ResourceLoader.Load("res://3D/" + tile.model);
 
-            m_ModelMeshes.Add(mesh);
+            ArrayMesh mesh = (ArrayMesh)ResourceLoader.Load("res://3D/" + tile.model);
+            m_MeshLibrary.CreateItem(i);
+            m_MeshLibrary.SetItemMesh(i, mesh);
         }
+
+        m_GridMap = new GridMap();
+        m_GridMap.MeshLibrary = m_MeshLibrary;
+        m_GridMap.CellSize = new Vector3(m_Config.meshSize, m_Config.meshSize, m_Config.meshSize);
+        m_GridMap.Name = "Grid map";
+        m_GridMap.Translate(new Vector3(-m_Config.meshSize * m_Config.columns / 2, 0, -m_Config.meshSize * m_Config.rows / 2));
+        AddChild(m_GridMap);
 
         return true;
     }
@@ -436,11 +433,10 @@ public partial class Wfc : Node
 
     private int SelectOption(ref Tile tile)
     {
-        int option = 0;
         List<int> weightedList = new List<int>();
         foreach (var o in tile.options)
         {
-            for (global::System.Int32 i = 0; i < m_KnownTiles[o].weight; i++)
+            for (int i = 0; i < m_KnownTiles[o].weight; i++)
             {
                 weightedList.Add(o);
             }
@@ -452,36 +448,18 @@ public partial class Wfc : Node
     private void ClearVisualGrid(Vector2I cell)
     {
         if (!m_Config.is3D) m_TileMapLayer.SetCell(cell);
-        else
-        {
-            if (m_MeshGrid[cell.X, cell.Y] != null) m_MeshGrid[cell.X, cell.Y].Visible = false;
-        }
+        else m_GridMap.SetCellItem(new Vector3I(cell.X, 0, cell.Y), -1);
     }
 
     private void SetVisualGrid(Vector2I cell, int tileId)
-    {            
+    {
         if (!m_Config.is3D) m_TileMapLayer.SetCell(cell, 0, m_KnownTiles[m_Tiles[cell.X, cell.Y].tileId].atlasCoords);
-        else
-        {
-            if (m_MeshGrid[cell.X, cell.Y] == null)
-            {
-                MeshInstance3D instance = new MeshInstance3D();
-                instance.Name = cell.X.ToString() + ", " + cell.Y.ToString();
-                instance.Mesh = m_ModelMeshes[tileId];
-                instance.Translate(new Vector3(cell.X * m_TileOffset.X, 0, cell.Y * m_TileOffset.Z));
-                m_MeshGrid[cell.X, cell.Y] = instance;
-                m_TileParent.AddChild(m_MeshGrid[cell.X, cell.Y]);
-            }
-            else
-            {
-                m_MeshGrid[cell.X, cell.Y].Mesh = m_ModelMeshes[tileId];
-            }
-            m_MeshGrid[cell.X, cell.Y].Visible = true;
-        }
+        else m_GridMap.SetCellItem(new Vector3I(cell.X, 0, cell.Y), tileId);
     }
 
     private void UnCollapse(Vector2I cellPos)
     {
+        // This can probably be better, Optimize
         m_Tiles[cellPos.X, cellPos.Y] = new Tile(m_KnownTiles.Length);
         ClearVisualGrid(cellPos);
 
@@ -490,7 +468,6 @@ public partial class Wfc : Node
         {
             m_Tiles[cellPos.X - 1, cellPos.Y] = new Tile(m_KnownTiles.Length);
             ClearVisualGrid(cellPos - new Vector2I(1, 0));
-
         }
         if (cellPos.Y > 0)
         {
@@ -543,6 +520,7 @@ public partial class Wfc : Node
 
     private Vector2I Collapse()
     {
+        // Optimize
         List<Tuple<int, Vector2I>> entropyList = new List<Tuple<int, Vector2I>>();
         for (int y = 0; y < m_Config.rows; y++)
         {
@@ -580,13 +558,19 @@ public partial class Wfc : Node
 
         m_Visited = new List<Vector2I>();
         Vector2I collapsedCell = Collapse();
-        if (collapsedCell.X == -1) return;
+        if (collapsedCell.X == -1) { if (m_Finished) OnFinishGeneration(); return; }
 
         Constrain(collapsedCell, Direction.NONE);
     }
 
+    private void OnFinishGeneration()
+    {
+        GD.Print("[Metrics]");
+        GD.Print("Total time taken: ", timeAcc / (1000.0f * 1000.0f), " seconds");
+        GD.Print("Average time per cycle: ", timeAcc / (double)cycleCount, "us");
+    }
+
     private long cycleCount = 0, timeAcc = 0;
-    private bool printedEnd = false;
     public override void _Process(double delta)
     {
         if (!m_Finished)
@@ -607,15 +591,6 @@ public partial class Wfc : Node
                 sw.Reset();
             }
         }
-        else if (!printedEnd)
-        {
-            GD.Print("[Metrics]");
-            GD.Print("Total time taken: ", timeAcc / (1000.0f * 1000.0f), " seconds");
-            GD.Print("Average time per cycle: ", timeAcc / (double)cycleCount, "us");
-            printedEnd = true;
-        }
-
-
     }
 
     void OnTimerTimeout()
