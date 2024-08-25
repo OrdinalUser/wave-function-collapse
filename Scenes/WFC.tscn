@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://bu3lq2bp0waoa"]
+
+[ext_resource type="Script" path="res://Scripts/Wfc.cs" id="1_edki1"]
+
+[node name="WFC" type="Node"]
+script = ExtResource("1_edki1")
+RulesetFilePath = "res://Rules/RulesB.json"

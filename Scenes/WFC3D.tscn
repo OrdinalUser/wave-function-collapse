@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://crnqgo74pg71o"]
+
+[ext_resource type="PackedScene" uid="uid://bu3lq2bp0waoa" path="res://Scenes/WFC.tscn" id="1_uuocj"]
+[ext_resource type="Script" path="res://Scripts/TileCamera.cs" id="2_81nbo"]
+
+[node name="Node" type="Node3D"]
+
+[node name="WFC" parent="." instance=ExtResource("1_uuocj")]
+
+[node name="TileCamera" type="Camera3D" parent="."]
+transform = Transform3D(0.707107, 0.5, -0.5, 0, 0.707107, 0.707107, 0.707107, -0.5, 0.5, 157.184, 100, 75.91)
+projection = 1
+current = true
+size = 100.0
+script = ExtResource("2_81nbo")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.58722, 0.809427, 0, -0.809427, -0.58722, 19.8701, 12.9364, -1.53889)

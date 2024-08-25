@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://d2vytlde2t8a1"
+path="res://.godot/imported/Straight_Vertical.obj-acc4c4a51c8afeb6142672a93bdf105d.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Straight_Vertical.obj-acc4c4a51c8afeb6142672a93bdf105d.mesh"]
+
+source_file="res://3D/Straight_Vertical.obj"
+dest_files=["res://.godot/imported/Straight_Vertical.obj-acc4c4a51c8afeb6142672a93bdf105d.mesh", "res://.godot/imported/Straight_Vertical.obj-acc4c4a51c8afeb6142672a93bdf105d.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

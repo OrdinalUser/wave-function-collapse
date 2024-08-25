@@ -4,7 +4,8 @@
 		"SpriteSize": 64,
 		"Seed": 2,
 		"Rows": 41,
-		"Columns": 72
+		"Columns": 72,
+		"3D": false,
 	},
 	"Tiles":
 	[

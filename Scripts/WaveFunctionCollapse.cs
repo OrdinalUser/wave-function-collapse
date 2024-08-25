@@ -444,7 +444,9 @@ public partial class WaveFunctionCollapse : Node2D
         if (cellPos.X < m_Config.columns - 1) Constrain(cellPos + new Vector2I(1, 0), Direction.NONE);
         if (cellPos.Y < m_Config.rows - 1) Constrain(cellPos + new Vector2I(0, 1), Direction.NONE);
         m_Visited.Clear();
+
         Constrain(cellPos, Direction.NONE);
+        m_Visited.Clear();
     }
 
     private Vector2I Collapse()
@@ -482,10 +484,11 @@ public partial class WaveFunctionCollapse : Node2D
     public void Cycle()
     {
         if (m_Finished) return;
+
+        m_Visited = new List<Vector2I>();
         Vector2I collapsedCell = Collapse();
         if (collapsedCell.X == -1) return;
 
-        m_Visited = new List<Vector2I>();
         Constrain(collapsedCell, Direction.NONE);
     }
 

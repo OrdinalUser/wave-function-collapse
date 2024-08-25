@@ -2,17 +2,19 @@
 	"Meta":
 	{
 		"SpriteSize": 64,
-		"Seed": 2,
-		"Rows": 41,
-		"Columns": 72
+		"Seed": 5,
+		"Rows": 50,
+		"Columns": 50,
+		"3D": true,
 	},
 	"Tiles":
 	[
-		"None", "Up", "Right", "Down", "Left", "Straight_V", "Straight_H"
+		"None", "Up", "Right", "Down", "Left", "Straight_H", "Straight_V"
 	],
 	"None":
 	{
 		"Sprite": "None.png",
+		"Model": "Flat.obj",
 		"Weight": 1,
 		"North":
 		[
@@ -24,7 +26,7 @@
 		],
 		"South":
 		[
-			"None", "Down", "Straight_H",
+			"None", "Down", "Straight_H"
 		],
 		"West":
 		[
@@ -34,6 +36,7 @@
 	"Up":
 	{
 		"Sprite": "Up.png",
+		"Model": "Up.obj",
 		"Weight": 1,
 		"North":
 		[
@@ -45,7 +48,7 @@
 		],
 		"South":
 		[
-			"None","Straight_H"
+			"None", "Down"
 		],
 		"West":
 		[
@@ -55,6 +58,7 @@
 	"Right":
 	{
 		"Sprite": "Right.png",
+		"Model": "Right.obj",
 		"Weight": 1,
 		"North":
 		[
@@ -70,24 +74,25 @@
 		],
 		"West":
 		[
-			"None", "Straight_V"
+			"None", "Left"
 		]
 	},
 	"Down":
 	{
 		"Sprite": "Down.png",
+		"Model": "Down.obj",
 		"Weight": 1,
 		"North":
 		[
-			"None", "Straight_H"
+			"None", "Up"
 		],
 		"East":
 		[
-			 "Up", "Straight_H"
+			 "Straight_H"
 		],
 		"South":
 		[
-			 "Straight_V"
+			"Straight_V"
 		],
 		"West":
 		[
@@ -97,6 +102,7 @@
 	"Left":
 	{
 		"Sprite": "Left.png",
+		"Model": "Left.obj",
 		"Weight": 1,
 		"North":
 		[
@@ -104,7 +110,7 @@
 		],
 		"East":
 		[
-			"None", "Straight_V"
+			"None", "Right"
 		],
 		"South":
 		[
@@ -118,10 +124,11 @@
 	"Straight_H":
 	{
 		"Sprite": "Straight_Horizontal.png",
+		"Model": "Straight_Horizontal.obj",
 		"Weight": 1,
 		"North":
 		[
-			"None",
+			"None", "Up", "Straight_H"
 		],
 		"East":
 		[
@@ -129,7 +136,7 @@
 		],
 		"South":
 		[
-			"None",
+			"None", "Down", "Straight_H"
 		],
 		"West":
 		[
@@ -139,6 +146,7 @@
 	"Straight_V":
 	{
 		"Sprite": "Straight_Vertical.png",
+		"Model": "Straight_Vertical.obj",
 		"Weight": 1,
 		"North":
 		[
@@ -146,7 +154,7 @@
 		],
 		"East":
 		[
-			"None",
+			"None", "Right", "Straight_V"
 		],
 		"South":
 		[
@@ -154,7 +162,7 @@
 		],
 		"West":
 		[
-			"None",
+			"None", "Left", "Straight_V"
 		]
 	},
 }

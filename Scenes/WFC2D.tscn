@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://bvbkqgoioumhy"]
+
+[ext_resource type="PackedScene" uid="uid://bu3lq2bp0waoa" path="res://Scenes/WFC.tscn" id="1_qn3nh"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="WFC" parent="." instance=ExtResource("1_qn3nh")]
+RulesetFilePath = "res://Rules/RulesA.json"
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(576, 324)
