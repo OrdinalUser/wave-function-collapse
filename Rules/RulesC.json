@@ -3,8 +3,8 @@
 	{
 		"SpriteSize": 64,
 		"Seed": 0,
-		"Rows": 50,
-		"Columns": 50,
+		"Rows": 100,
+		"Columns": 100,
 		"3D": true,
 		"MeshSize": 6.4,
 	},

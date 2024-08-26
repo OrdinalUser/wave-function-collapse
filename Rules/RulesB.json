@@ -2,9 +2,9 @@
 	"Meta":
 	{
 		"SpriteSize": 64,
-		"Seed": 5,
-		"Rows": 20,
-		"Columns": 20,
+		"Seed": 6,
+		"Rows": 150,
+		"Columns": 150,
 		"3D": true,
 		"MeshSize": 6.4,
 	},

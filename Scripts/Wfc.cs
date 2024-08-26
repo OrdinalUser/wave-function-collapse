@@ -320,27 +320,18 @@ public partial class Wfc : Node
             else if (fromWhere == Direction.UP) checkedTileOptionsSide = m_KnownTiles[checkedTile.tileId].northConnections;
             else if (fromWhere == Direction.DOWN) checkedTileOptionsSide = m_KnownTiles[checkedTile.tileId].southConnections;
 
-            List<int> tileOptions = new List<int>();
-            foreach (int option in checkedTileOptionsSide)
-            {
-                tileOptions.Add(option);
-            }
-            directionOptions = tileOptions;
+            directionOptions = new List<int>(checkedTileOptionsSide);
         }
         else
         {
             foreach (int option in checkedTile.options)
             {
-                List<int> tileOptions = new List<int>();
                 if (fromWhere == Direction.LEFT) checkedTileOptionsSide = m_KnownTiles[option].westConnections;
                 else if (fromWhere == Direction.RIGHT) checkedTileOptionsSide = m_KnownTiles[option].eastConnections;
                 else if (fromWhere == Direction.UP) checkedTileOptionsSide = m_KnownTiles[option].northConnections;
                 else if (fromWhere == Direction.DOWN) checkedTileOptionsSide = m_KnownTiles[option].southConnections;
-                foreach (int o in checkedTileOptionsSide)
-                {
-                    tileOptions.Add(o);
-                }
-                directionOptions = directionOptions.Union(tileOptions).ToList();
+
+                directionOptions = directionOptions.Union(checkedTileOptionsSide).ToList();
             }
         }
         return directionOptions;
@@ -348,7 +339,6 @@ public partial class Wfc : Node
 
     private bool Reduce(Vector2I cellPos)
     {
-        if (cellPos.X < 0 || cellPos.Y < 0 || cellPos.X > m_Config.columns || cellPos.Y > m_Config.rows) return false;
         if (m_Tiles[cellPos.X, cellPos.Y].collapsed) return false;
 
         int x = cellPos.X, y = cellPos.Y;
@@ -404,7 +394,9 @@ public partial class Wfc : Node
 
     private void Constrain(Vector2I cellPos, Direction fromWhere)
     {
+        constrainTotalCalled++;
         if (m_Visited.Contains(cellPos)) { return; }
+
         m_Visited.Add(cellPos);
         int x = cellPos.X, y = cellPos.Y;
 
@@ -458,8 +450,11 @@ public partial class Wfc : Node
         else m_GridMap.SetCellItem(new Vector3I(cell.X, 0, cell.Y), tileId);
     }
 
+
     private void UnCollapse(Vector2I cellPos)
     {
+        uncollapseTotalCalled++;
+
         // This can probably be better, Optimize
         m_Tiles[cellPos.X, cellPos.Y] = new Tile(m_KnownTiles.Length);
         ClearVisualGrid(cellPos);
@@ -510,8 +505,11 @@ public partial class Wfc : Node
 
         m_Visited.Clear();
         if (cellPos.Y > 0) Constrain(cellPos - new Vector2I(0, 1), Direction.NONE);
+        m_Visited.Clear();
         if (cellPos.X > 0) Constrain(cellPos - new Vector2I(1, 0), Direction.NONE);
+        m_Visited.Clear();
         if (cellPos.X < m_Config.columns - 1) Constrain(cellPos + new Vector2I(1, 0), Direction.NONE);
+        m_Visited.Clear();
         if (cellPos.Y < m_Config.rows - 1) Constrain(cellPos + new Vector2I(0, 1), Direction.NONE);
         m_Visited.Clear();
 
@@ -519,14 +517,32 @@ public partial class Wfc : Node
         m_Visited.Clear();
     }
 
+    private void Reveal3D()
+    {
+        for (int y = 0; y < m_Config.rows; y++)
+        {
+            for (int x = 0; x < m_Config.columns; x++)
+            {
+                m_GridMap.SetCellItem(new Vector3I(x, 0, y), m_Tiles[x, y].tileId);
+            }
+        }
+    }
 
     private bool firstCollapse = true;
+    Stopwatch uncollapseSw = new Stopwatch();
+    long uncollapseTotalTime = 0, uncollapseTotalCalled = 0;
+
+    Stopwatch pickSw = new Stopwatch();
+    long pickTotalTime = 0, pickTotalCalled = 0;
     private Vector2I Collapse()
     {
+        collapseTotalCalled++;
+
         Vector2I selectedCell = Vector2I.Zero;
         if (!firstCollapse)
         {
             // Optimize
+            pickSw.Start();
             List<Tuple<int, Vector2I>> entropyList = new List<Tuple<int, Vector2I>>();
             for (int y = 0; y < m_Config.rows; y++)
             {
@@ -539,8 +555,13 @@ public partial class Wfc : Node
 
             List<Tuple<int, Vector2I>> sortedEntropy = entropyList.OrderBy(o => o.Item1).ToList();
             List<Tuple<int, Vector2I>> lowestValueEntropyEntries = (from entry in sortedEntropy where entry.Item1 == sortedEntropy[0].Item1 select entry).ToList();
-
             selectedCell = lowestValueEntropyEntries[m_Random.Next(lowestValueEntropyEntries.Count)].Item2;
+
+            pickSw.Stop();
+            long us = pickSw.ElapsedTicks / (Stopwatch.Frequency / (1000L * 1000L));
+            pickTotalTime += us;
+            pickTotalCalled++;
+            pickSw.Reset();
         }
         else { selectedCell = new Vector2I(m_Config.rows / 2, m_Config.columns / 2); firstCollapse = false; }
 
@@ -556,27 +577,55 @@ public partial class Wfc : Node
         }
         else
         {
+            uncollapseSw.Start();
             UnCollapse(selectedCell);
+            uncollapseSw.Stop();
+            long us = uncollapseSw.ElapsedTicks / (Stopwatch.Frequency / (1000L * 1000L));
+            uncollapseSw.Reset();
+            uncollapseTotalTime += us;
+
             return new Vector2I(-1, -1);
         }
     }
+
+    Stopwatch collapseSw = new Stopwatch();
+    Stopwatch constrainSw = new Stopwatch();
+    long collapseTotalCalled = 0, collapseTotalTime = 0;
+    long constrainTotalCalled = 0, constrainTotalTime = 0;
 
     public void Cycle()
     {
         if (m_Finished) return;
 
         m_Visited = new List<Vector2I>();
+
+        collapseSw.Start();
         Vector2I collapsedCell = Collapse();
+        collapseSw.Stop();
+        long usC = collapseSw.ElapsedTicks / (Stopwatch.Frequency / (1000L * 1000L));
+        collapseSw.Reset();
+        collapseTotalTime += usC;
+
         if (collapsedCell.X == -1) { if (m_Finished) OnFinishGeneration(); return; }
 
+        constrainSw.Start();
         Constrain(collapsedCell, Direction.NONE);
+        constrainSw.Stop();
+        long usConstrain = constrainSw.ElapsedTicks / (Stopwatch.Frequency / (1000L * 1000L));
+        constrainSw.Reset();
+        constrainTotalTime += usConstrain;
     }
 
     private void OnFinishGeneration()
     {
+        //Reveal3D();
         GD.Print("[Metrics]");
         GD.Print("Total time taken: ", timeAcc / (1000.0f * 1000.0f), " seconds");
-        GD.Print("Average time per cycle: ", timeAcc / (double)cycleCount, "us");
+        GD.Print("Cycle: {Count: ", cycleCount, ", Average time: ", timeAcc / (double)cycleCount, "us }");
+        GD.Print("Collapse: {Count: ", collapseTotalCalled, ", Average time: ", collapseTotalTime / (double)collapseTotalCalled, "us }");
+        GD.Print("> Entropy selection: {Count: ", pickTotalCalled, ", Average time: ", pickTotalTime / (double)pickTotalCalled, "us }");
+        GD.Print("> Constrain: {Count: ", constrainTotalCalled, ", Average time: ", constrainTotalTime / (double)constrainTotalCalled, "us }");
+        GD.Print("Uncollapse: {Count: ", uncollapseTotalCalled, ", Average time: ", uncollapseTotalTime / (double)uncollapseTotalCalled, "us }");
     }
 
     private long cycleCount = 0, timeAcc = 0;
