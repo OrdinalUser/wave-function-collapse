@@ -3,9 +3,10 @@
 	{
 		"SpriteSize": 64,
 		"Seed": 10,
-		"Rows": 41,
-		"Columns": 72,
-		"3D": false,
+		"Rows": 50,
+		"Columns": 50,
+		"3D": true,
+		"MeshSize": 6.4,
 	},
 	"Tiles":
 	[
@@ -14,6 +15,7 @@
 	"None":
 	{
 		"Sprite": "None.png",
+		"Model": "Flat.obj",
 		"Weight": 50,
 		"North":
 		[
@@ -35,6 +37,7 @@
 	"Up":
 	{
 		"Sprite": "Up.png",
+		"Model": "Up.obj",
 		"Weight": 4,
 		"North":
 		[
@@ -56,6 +59,7 @@
 	"Right":
 	{
 		"Sprite": "Right.png",
+		"Model": "Right.obj",
 		"Weight": 4,
 		"North":
 		[
@@ -77,6 +81,7 @@
 	"Down":
 	{
 		"Sprite": "Down.png",
+		"Model": "Down.obj",
 		"Weight": 4,
 		"North":
 		[
@@ -98,6 +103,7 @@
 	"Left":
 	{
 		"Sprite": "Left.png",
+		"Model": "Left.obj",
 		"Weight": 4,
 		"North":
 		[
@@ -119,6 +125,7 @@
 	"Straight_H":
 	{
 		"Sprite": "Straight_Horizontal.png",
+		"Model": "Straight_Horizontal.obj",
 		"Weight": 30,
 		"North":
 		[
@@ -140,6 +147,7 @@
 	"Straight_V":
 	{
 		"Sprite": "Straight_Vertical.png",
+		"Model": "Straight_Vertical.obj",
 		"Weight": 30,
 		"North":
 		[
@@ -161,6 +169,7 @@
 	"Cross":
 	{
 		"Sprite": "Cross.png",
+		"Model": "Cross.obj",
 		"Weight": 1,
 		"North":
 		[
@@ -182,6 +191,7 @@
 	"TurnLU":
 	{
 		"Sprite": "Turn_Left_Up.png",
+		"Model": "Turn_Left_Up.obj",
 		"Weight": 1,
 		"North":
 		[
@@ -203,6 +213,7 @@
 	"TurnLD":
 	{
 		"Sprite": "Turn_Left_Down.png",
+		"Model": "Turn_Left_Down.obj",
 		"Weight": 1,
 		"North":
 		[
@@ -224,6 +235,7 @@
 	"TurnRD":
 	{
 		"Sprite": "Turn_Right_Down.png",
+		"Model": "Turn_Right_Down.obj",
 		"Weight": 1,
 		"North":
 		[
@@ -245,6 +257,7 @@
 	"TurnRU":
 	{
 		"Sprite": "Turn_Right_Up.png",
+		"Model": "Turn_Right_Up.obj",
 		"Weight": 1,
 		"North":
 		[

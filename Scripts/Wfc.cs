@@ -198,6 +198,7 @@ public partial class Wfc : Node
             ref TilePrototype tile = ref m_KnownTiles[i];
 
             ArrayMesh mesh = (ArrayMesh)ResourceLoader.Load("res://3D/" + tile.model);
+
             m_MeshLibrary.CreateItem(i);
             m_MeshLibrary.SetItemMesh(i, mesh);
         }
@@ -518,23 +519,31 @@ public partial class Wfc : Node
         m_Visited.Clear();
     }
 
+
+    private bool firstCollapse = true;
     private Vector2I Collapse()
     {
-        // Optimize
-        List<Tuple<int, Vector2I>> entropyList = new List<Tuple<int, Vector2I>>();
-        for (int y = 0; y < m_Config.rows; y++)
+        Vector2I selectedCell = Vector2I.Zero;
+        if (!firstCollapse)
         {
-            for (int x = 0; x < m_Config.columns; x++)
+            // Optimize
+            List<Tuple<int, Vector2I>> entropyList = new List<Tuple<int, Vector2I>>();
+            for (int y = 0; y < m_Config.rows; y++)
             {
-                if (!m_Tiles[x, y].collapsed) entropyList.Add(new Tuple<int, Vector2I>(m_Tiles[x, y].GetEntropy(), new Vector2I(x, y)));
+                for (int x = 0; x < m_Config.columns; x++)
+                {
+                    if (!m_Tiles[x, y].collapsed) entropyList.Add(new Tuple<int, Vector2I>(m_Tiles[x, y].GetEntropy(), new Vector2I(x, y)));
+                }
             }
+            if (entropyList.Count == 0) { m_Finished = true; return new Vector2I(-1, -1); }
+
+            List<Tuple<int, Vector2I>> sortedEntropy = entropyList.OrderBy(o => o.Item1).ToList();
+            List<Tuple<int, Vector2I>> lowestValueEntropyEntries = (from entry in sortedEntropy where entry.Item1 == sortedEntropy[0].Item1 select entry).ToList();
+
+            selectedCell = lowestValueEntropyEntries[m_Random.Next(lowestValueEntropyEntries.Count)].Item2;
         }
-        if (entropyList.Count == 0) { m_Finished = true; return new Vector2I(-1, -1); }
+        else { selectedCell = new Vector2I(m_Config.rows / 2, m_Config.columns / 2); firstCollapse = false; }
 
-        List<Tuple<int, Vector2I>> sortedEntropy = entropyList.OrderBy(o => o.Item1).ToList();
-        List<Tuple<int, Vector2I>> lowestValueEntropyEntries = (from entry in sortedEntropy where entry.Item1 == sortedEntropy[0].Item1 select entry).ToList();
-
-        Vector2I selectedCell = lowestValueEntropyEntries[m_Random.Next(lowestValueEntropyEntries.Count)].Item2;
         if (m_Tiles[selectedCell.X, selectedCell.Y].GetEntropy() != 0)
         {
             int randomNum = m_Random.Next(m_Tiles[selectedCell.X, selectedCell.Y].options.Count);
