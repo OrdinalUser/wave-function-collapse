@@ -5,26 +5,57 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 
-public partial class WaveFunctionCollapse : Node2D
+public partial class WaveFunctionCollapse : Node3D
 {
     public struct TilePrototype
     {
-        public string sprite;
+        public string sprite; // Path to sprite file
+        public Vector2I atlasCoords;
+
+        public string model; // Path to model file
+
         public string name;
         public float weight;
+
         public int[] northConnections;
         public int[] westConnections;
         public int[] eastConnections;
         public int[] southConnections;
-        public Vector2I atlasCoords;
     }
 
     public struct Config
     {
         public int seed;
-        public int columns;
-        public int rows;
         public int spriteSize;
+
+        public bool is3D;
+        public float meshSize;
+
+        public int chunkCountX, chunkCountY; // How many chunks in a world  // 10x10 chunks      ==> 100 x 100 world
+        public int chunkColumns, chunkRows;  // How big are the chunks      // 10x10 chunk size  ==>
+    }
+
+    public struct Chunk
+    {
+        public int m_IdX, m_IdY;
+        public int m_Rows, m_Columns;
+        public Tile[,] m_Tiles;
+
+        public Chunk(int idX, int idY, int rows, int cols, List<int> allTileOptions)
+        {
+            m_IdX = idX;
+            m_IdY = idY;
+            m_Rows = rows;
+            m_Columns = cols;
+            m_Tiles = new Tile[m_Columns, m_Rows];
+            for (int x = 0; x < cols; x++)
+            {
+                for (int y = 0; y < rows; y++)
+                {
+                    m_Tiles[x, y] = new Tile(allTileOptions.Count);
+                }
+            }
+        }
     }
 
     public struct Tile
@@ -53,23 +84,32 @@ public partial class WaveFunctionCollapse : Node2D
         }
     }
 
-    Config m_Config;
+    /* World Data */
+    private Chunk[,] m_Chunks;
+    private List<int> m_AllTileOptions;
 
+    /* Config / Drawing data */
+    Config m_Config;
+    public TilePrototype[] m_KnownTiles;
+
+    /* External things */
     [Export] public string RulesetFilePath = "res://Rules/Rules.json";
 
-    public Tile[,] m_Tiles;
-    public TilePrototype[] m_KnownTiles;
-    public Dictionary<string, int> m_NamedKnownTiles;
-
+    /* Internal nonsense */
     public bool m_Finished;
-
     private Random m_Random;
 
+    /* 2D render stuff */
     private TileMapLayer m_TileMapLayer;
     private TileSet m_TileSet;
     private Image m_Spritesheet;
     private ImageTexture m_AtlasTexture;
     private TileSetAtlasSource m_TileSetAtlasSource;
+
+    /* 3D render stuff */
+    private List<Mesh> m_ModelMeshes;
+    GridMap m_GridMap;
+    MeshLibrary m_MeshLibrary;
 
     bool LoadConfig()
     {
@@ -79,8 +119,8 @@ public partial class WaveFunctionCollapse : Node2D
             return false;
         }
 
+        /* Open & read config file */
         FileAccess configFile = FileAccess.Open(RulesetFilePath, FileAccess.ModeFlags.Read);
-
         Json json = new Json();
         var err = json.Parse(configFile.GetAsText());
         configFile.Close();
@@ -89,59 +129,9 @@ public partial class WaveFunctionCollapse : Node2D
             GD.PushError("Failed to parse config!");
             return false;
         }
-
         using var config = json.Data.AsGodotDictionary();
 
-        m_NamedKnownTiles = new Dictionary<string, int>();
-        int tileId = 0;
-        foreach (var tileName in config["Tiles"].AsStringArray())
-        {
-            m_NamedKnownTiles[tileName] = tileId;
-            tileId++;
-        }
-
-        List<TilePrototype> tilePrototypes = new List<TilePrototype>();
-        foreach (var tileName in config["Tiles"].AsStringArray())
-        {
-            using var tileData = config[tileName].AsGodotDictionary();
-            TilePrototype tile = new TilePrototype();
-
-            tile.name = tileName;
-            tile.weight = (float)tileData["Weight"];
-            tile.sprite = (string)tileData["Sprite"];
-
-            List<int> connections = new List<int>();
-            foreach (var conn in tileData["North"].AsStringArray())
-            {
-                connections.Add(m_NamedKnownTiles[conn]);
-            }
-            tile.northConnections = connections.ToArray();
-
-            connections = new List<int>();
-            foreach (var conn in tileData["East"].AsStringArray())
-            {
-                connections.Add(m_NamedKnownTiles[conn]);
-            }
-            tile.eastConnections = connections.ToArray();
-
-            connections = new List<int>();
-            foreach (var conn in tileData["South"].AsStringArray())
-            {
-                connections.Add(m_NamedKnownTiles[conn]);
-            }
-            tile.southConnections = connections.ToArray();
-
-            connections = new List<int>();
-            foreach (var conn in tileData["West"].AsStringArray())
-            {
-                connections.Add(m_NamedKnownTiles[conn]);
-            }
-            tile.westConnections = connections.ToArray();
-
-            tilePrototypes.Add(tile);
-        }
-        m_KnownTiles = tilePrototypes.ToArray();
-
+        /* Load Config Data */
         m_Config = new Config();
         var meta = config["Meta"].AsGodotDictionary();
         m_Config.spriteSize = meta["SpriteSize"].AsInt32();
@@ -151,9 +141,102 @@ public partial class WaveFunctionCollapse : Node2D
             Random r = new Random();
             m_Config.seed = r.Next();
         }
-        m_Config.rows = meta["Rows"].AsInt32();
-        m_Config.columns = meta["Columns"].AsInt32();
+        m_Random = new Random(m_Config.seed);
+
+        m_Config.is3D = meta["3D"].AsBool();
+        m_Config.meshSize = (float)meta["MeshSize"];
+
+        m_Config.chunkColumns = meta["ChunkColumns"].AsInt32();
+        m_Config.chunkRows = meta["ChunkRows"].AsInt32();
+        m_Config.chunkCountX = meta["ChunkCountX"].AsInt32();
+        m_Config.chunkCountY = meta["ChunkCountY"].AsInt32();
+
+        /* Load Tile Names & push into all options */
+        Dictionary<string, int> tileNames = new Dictionary<string, int>();
+        m_AllTileOptions = new List<int>();
+        int tileId = 0;
+        foreach (var tileName in config["Tiles"].AsStringArray())
+        {
+            tileNames[tileName] = tileId;
+            m_AllTileOptions.Add(tileId);
+            tileId++;
+        }
+
+        /* Load Tile Data */
+        List<TilePrototype> tilePrototypes = new List<TilePrototype>();
+        foreach (var tileName in config["Tiles"].AsStringArray())
+        {
+            using var tileData = config[tileName].AsGodotDictionary();
+            TilePrototype tile = new TilePrototype();
+
+            tile.name = tileName;
+            tile.weight = (float)tileData["Weight"];
+            if (!m_Config.is3D) tile.sprite = (string)tileData["Sprite"];
+            else tile.model = (string)tileData["Model"];
+
+            List<int> connections = new List<int>();
+            foreach (var conn in tileData["North"].AsStringArray())
+            {
+                connections.Add(tileNames[conn]);
+            }
+            tile.northConnections = connections.ToArray();
+
+            connections = new List<int>();
+            foreach (var conn in tileData["East"].AsStringArray())
+            {
+                connections.Add(tileNames[conn]);
+            }
+            tile.eastConnections = connections.ToArray();
+
+            connections = new List<int>();
+            foreach (var conn in tileData["South"].AsStringArray())
+            {
+                connections.Add(tileNames[conn]);
+            }
+            tile.southConnections = connections.ToArray();
+
+            connections = new List<int>();
+            foreach (var conn in tileData["West"].AsStringArray())
+            {
+                connections.Add(tileNames[conn]);
+            }
+            tile.westConnections = connections.ToArray();
+            tileId++;
+            tilePrototypes.Add(tile);
+        }
+        m_KnownTiles = tilePrototypes.ToArray();
+
+        GD.Print("[Config]");
         GD.Print("Seed: ", m_Config.seed);
+
+        return true;
+    }
+
+    bool InitializeGraphics()
+    {
+        if (!m_Config.is3D) return SetupTileMap();
+        else return SetupTileMap3D();
+    }
+
+    bool SetupTileMap3D()
+    {
+        m_MeshLibrary = new MeshLibrary();
+        for (int i = 0; i < m_KnownTiles.Length; i++)
+        {
+            ref TilePrototype tile = ref m_KnownTiles[i];
+
+            ArrayMesh mesh = (ArrayMesh)ResourceLoader.Load("res://3D/" + tile.model);
+
+            m_MeshLibrary.CreateItem(i);
+            m_MeshLibrary.SetItemMesh(i, mesh);
+        }
+
+        m_GridMap = new GridMap();
+        m_GridMap.MeshLibrary = m_MeshLibrary;
+        m_GridMap.CellSize = new Vector3(m_Config.meshSize, m_Config.meshSize, m_Config.meshSize);
+        m_GridMap.Name = "Grid map";
+        m_GridMap.Translate(new Vector3(-m_Config.meshSize * m_Config.chunkCountX * m_Config.chunkColumns / 2, 0, -m_Config.meshSize * m_Config.chunkCountY * m_Config.chunkRows / 2));
+        AddChild(m_GridMap);
 
         return true;
     }
@@ -223,7 +306,10 @@ public partial class WaveFunctionCollapse : Node2D
         m_TileMapLayer.NavigationEnabled = false;
         m_TileMapLayer.CollisionEnabled = false;
 
-        m_Random = new Random(m_Config.seed);
+        Vector2I screenSize = DisplayServer.WindowGetSize();
+        Vector2I requiredSizeInPixels = new Vector2I(m_Config.chunkCountX * m_Config.chunkColumns * m_Config.spriteSize, m_Config.chunkCountY * m_Config.chunkRows * m_Config.spriteSize);
+        float finalScale = Mathf.Min((float)screenSize.X / requiredSizeInPixels.X, (float)screenSize.Y / requiredSizeInPixels.Y);
+        m_TileMapLayer.Scale = new Vector2(finalScale, finalScale);
 
         AddChild(m_TileMapLayer);
 
@@ -234,14 +320,14 @@ public partial class WaveFunctionCollapse : Node2D
     {
         m_Finished = false;
         if (!LoadConfig()) { GD.PrintErr("Failed to load config."); return; }
-        if (!SetupTileMap()) { GD.PrintErr("Failed to build tiles."); return; }
+        if (!InitializeGraphics()) { GD.PrintErr("Failed to build tiles."); return; }
 
-        m_Tiles = new Tile[m_Config.columns, m_Config.rows];
-        for (int y = 0; y < m_Config.rows; y++)
+        m_Chunks = new Chunk[m_Config.chunkCountX, m_Config.chunkCountY];
+        for (int x = 0; x < m_Config.chunkCountX; x++)
         {
-            for (int x = 0; x < m_Config.columns; x++)
+            for (int y = 0; y < m_Config.chunkCountY; y++)
             {
-                m_Tiles[x, y] = new Tile(m_KnownTiles.Length);
+                m_Chunks[x, y] = new Chunk(x, y, m_Config.chunkColumns, m_Config.chunkRows, m_AllTileOptions);
             }
         }
     }
@@ -262,39 +348,30 @@ public partial class WaveFunctionCollapse : Node2D
             else if (fromWhere == Direction.UP) checkedTileOptionsSide = m_KnownTiles[checkedTile.tileId].northConnections;
             else if (fromWhere == Direction.DOWN) checkedTileOptionsSide = m_KnownTiles[checkedTile.tileId].southConnections;
 
-            List<int> tileOptions = new List<int>();
-            foreach (int option in checkedTileOptionsSide)
-            {
-                tileOptions.Add(option);
-            }
-            directionOptions = tileOptions;
+            directionOptions = new List<int>(checkedTileOptionsSide);
         }
         else
         {
             foreach (int option in checkedTile.options)
             {
-                List<int> tileOptions = new List<int>();
                 if (fromWhere == Direction.LEFT) checkedTileOptionsSide = m_KnownTiles[option].westConnections;
                 else if (fromWhere == Direction.RIGHT) checkedTileOptionsSide = m_KnownTiles[option].eastConnections;
                 else if (fromWhere == Direction.UP) checkedTileOptionsSide = m_KnownTiles[option].northConnections;
                 else if (fromWhere == Direction.DOWN) checkedTileOptionsSide = m_KnownTiles[option].southConnections;
-                foreach (int o in checkedTileOptionsSide)
-                {
-                    tileOptions.Add(o);
-                }
-                directionOptions = directionOptions.Union(tileOptions).ToList();
+
+                directionOptions = directionOptions.Union(checkedTileOptionsSide).ToList();
             }
         }
         return directionOptions;
     }
 
-    private bool Reduce(Vector2I cellPos)
+    private bool Reduce(ref Chunk chunk, Vector2I cellPos)
     {
-        if (cellPos.X < 0 || cellPos.Y < 0 || cellPos.X > m_Config.columns || cellPos.Y > m_Config.rows) return false;
-        if (m_Tiles[cellPos.X, cellPos.Y].collapsed) return false;
+        ref Tile[,] tiles = ref chunk.m_Tiles;
+        if (tiles[cellPos.X, cellPos.Y].collapsed) return false;
 
         int x = cellPos.X, y = cellPos.Y;
-        ref Tile tile = ref m_Tiles[x, y];
+        ref Tile tile = ref tiles[x, y];
 
         bool changed = false;
         List<int> newOptions = new List<int>();
@@ -305,25 +382,25 @@ public partial class WaveFunctionCollapse : Node2D
 
         if (x > 0)
         {
-            ref Tile checkedTile = ref m_Tiles[x - 1, y];
+            ref Tile checkedTile = ref tiles[x - 1, y];
             List<int> directionOptions = GetTilePossibleOptions(ref tile, ref checkedTile, Direction.RIGHT);
             newOptions = newOptions.Intersect(directionOptions).ToList();
         }
         if (y > 0)
         {
-            ref Tile checkedTile = ref m_Tiles[x, y - 1];
+            ref Tile checkedTile = ref tiles[x, y - 1];
             List<int> directionOptions = GetTilePossibleOptions(ref tile, ref checkedTile, Direction.DOWN);
             newOptions = newOptions.Intersect(directionOptions).ToList();
         }
-        if (x < m_Config.columns - 1)
+        if (x < chunk.m_Columns - 1)
         {
-            ref Tile checkedTile = ref m_Tiles[x + 1, y];
+            ref Tile checkedTile = ref tiles[x + 1, y];
             List<int> directionOptions = GetTilePossibleOptions(ref tile, ref checkedTile, Direction.LEFT);
             newOptions = newOptions.Intersect(directionOptions).ToList();
         }
-        if (y < m_Config.rows - 1)
+        if (y < chunk.m_Rows - 1)
         {
-            ref Tile checkedTile = ref m_Tiles[x, y + 1];
+            ref Tile checkedTile = ref tiles[x, y + 1];
             List<int> directionOptions = GetTilePossibleOptions(ref tile, ref checkedTile, Direction.UP);
             newOptions = newOptions.Intersect(directionOptions).ToList();
         }
@@ -331,7 +408,7 @@ public partial class WaveFunctionCollapse : Node2D
         if (tile.options.Count != newOptions.Count)
         {
             changed = true;
-            m_Tiles[x, y].options = newOptions;
+            tiles[x, y].options = newOptions;
         }
 
         return changed;
@@ -344,43 +421,44 @@ public partial class WaveFunctionCollapse : Node2D
 
     private List<Vector2I> m_Visited;
 
-    private void Constrain(Vector2I cellPos, Direction fromWhere)
+    private void Constrain(ref Chunk chunk, Vector2I cellPos, Direction fromWhere)
     {
+        constrainTotalCalled++;
         if (m_Visited.Contains(cellPos)) { return; }
+
         m_Visited.Add(cellPos);
         int x = cellPos.X, y = cellPos.Y;
 
         if (x > 0 && fromWhere != Direction.LEFT)
         {
-            if (Reduce(cellPos - new Vector2I(1, 0)))
-                Constrain(cellPos - new Vector2I(1, 0), Direction.RIGHT);
+            if (Reduce(ref chunk, cellPos - new Vector2I(1, 0)))
+                Constrain(ref chunk, cellPos - new Vector2I(1, 0), Direction.RIGHT);
         }
         if (y > 0 && fromWhere != Direction.UP)
         {
-            if (Reduce(cellPos - new Vector2I(0, 1)))
-                Constrain(cellPos - new Vector2I(0, 1), Direction.DOWN);
+            if (Reduce(ref chunk, cellPos - new Vector2I(0, 1)))
+                Constrain(ref chunk, cellPos - new Vector2I(0, 1), Direction.DOWN);
         }
-        if (x < m_Config.columns - 1 && fromWhere != Direction.RIGHT)
+        if (x < chunk.m_Columns - 1 && fromWhere != Direction.RIGHT)
         {
-            if (Reduce(cellPos + new Vector2I(1, 0)))
-                Constrain(cellPos + new Vector2I(1, 0), Direction.LEFT);
+            if (Reduce(ref chunk, cellPos + new Vector2I(1, 0)))
+                Constrain(ref chunk, cellPos + new Vector2I(1, 0), Direction.LEFT);
         }
-        if (y < m_Config.rows - 1 && fromWhere != Direction.DOWN)
+        if (y < chunk.m_Rows - 1 && fromWhere != Direction.DOWN)
         {
-            if (Reduce(cellPos + new Vector2I(0, 1)))
-                Constrain(cellPos + new Vector2I(0, 1), Direction.UP);
+            if (Reduce(ref chunk, cellPos + new Vector2I(0, 1)))
+                Constrain(ref chunk, cellPos + new Vector2I(0, 1), Direction.UP);
         }
 
-        if (fromWhere == Direction.NONE) Reduce(cellPos);
+        if (fromWhere == Direction.NONE) Reduce(ref chunk, cellPos);
     }
 
     private int SelectOption(ref Tile tile)
     {
-        int option = 0;
         List<int> weightedList = new List<int>();
         foreach (var o in tile.options)
         {
-            for (global::System.Int32 i = 0; i < m_KnownTiles[o].weight; i++)
+            for (int i = 0; i < m_KnownTiles[o].weight; i++)
             {
                 weightedList.Add(o);
             }
@@ -389,124 +467,208 @@ public partial class WaveFunctionCollapse : Node2D
         return weightedList[m_Random.Next(weightedList.Count)];
     }
 
-    private void UnCollapse(Vector2I cellPos)
+    private void ClearVisualGrid(Vector2I cell)
     {
-        m_Tiles[cellPos.X, cellPos.Y] = new Tile(m_KnownTiles.Length);
-        m_TileMapLayer.SetCell(cellPos);
+        if (!m_Config.is3D) m_TileMapLayer.SetCell(cell);
+        else m_GridMap.SetCellItem(new Vector3I(cell.X, 0, cell.Y), -1);
+    }
+
+    private void SetVisualGrid(ref Chunk chunk, Vector2I cell, int tileId)
+    {
+        if (!m_Config.is3D) m_TileMapLayer.SetCell(cell, 0, m_KnownTiles[chunk.m_Tiles[cell.X, cell.Y].tileId].atlasCoords);
+        else m_GridMap.SetCellItem(new Vector3I(cell.X, 0, cell.Y), tileId);
+    }
+
+
+    private void UnCollapse(ref Chunk chunk, Vector2I cellPos)
+    {
+        uncollapseTotalCalled++;
+
+        // This can probably be better, Optimize
+        chunk.m_Tiles[cellPos.X, cellPos.Y] = new Tile(m_KnownTiles.Length);
+        ClearVisualGrid(cellPos);
 
         // Straight
         if (cellPos.X > 0)
         {
-            m_Tiles[cellPos.X - 1, cellPos.Y] = new Tile(m_KnownTiles.Length);
-            m_TileMapLayer.SetCell(cellPos - new Vector2I(1, 0));
+            chunk.m_Tiles[cellPos.X - 1, cellPos.Y] = new Tile(m_KnownTiles.Length);
+            ClearVisualGrid(cellPos - new Vector2I(1, 0));
         }
         if (cellPos.Y > 0)
         {
-            m_Tiles[cellPos.X, cellPos.Y - 1] = new Tile(m_KnownTiles.Length);
-            m_TileMapLayer.SetCell(cellPos - new Vector2I(0, 1));
+            chunk.m_Tiles[cellPos.X, cellPos.Y - 1] = new Tile(m_KnownTiles.Length);
+            ClearVisualGrid(cellPos - new Vector2I(0, 1));
         }
-        if (cellPos.X < m_Config.columns - 1)
+        if (cellPos.X < chunk.m_Columns - 1)
         {
-            m_Tiles[cellPos.X + 1, cellPos.Y] = new Tile(m_KnownTiles.Length);
-            m_TileMapLayer.SetCell(cellPos + new Vector2I(1, 0));
+            chunk.m_Tiles[cellPos.X + 1, cellPos.Y] = new Tile(m_KnownTiles.Length);
+            ClearVisualGrid(cellPos + new Vector2I(1, 0));
         }
-        if (cellPos.Y < m_Config.rows - 1)
+        if (cellPos.Y < chunk.m_Rows - 1)
         {
-            m_Tiles[cellPos.X, cellPos.Y + 1] = new Tile(m_KnownTiles.Length);
-            m_TileMapLayer.SetCell(cellPos + new Vector2I(0, 1));
+            chunk.m_Tiles[cellPos.X, cellPos.Y + 1] = new Tile(m_KnownTiles.Length);
+            ClearVisualGrid(cellPos + new Vector2I(0, 1));
         }
 
         // Far ends
         if (cellPos.X - 1 > 0)
         {
-            m_Tiles[cellPos.X - 2, cellPos.Y] = new Tile(m_KnownTiles.Length);
-            m_TileMapLayer.SetCell(cellPos - new Vector2I(2, 0));
+            chunk.m_Tiles[cellPos.X - 2, cellPos.Y] = new Tile(m_KnownTiles.Length);
+            ClearVisualGrid(cellPos - new Vector2I(2, 0));
         }
         if (cellPos.Y - 1 > 0)
         {
-            m_Tiles[cellPos.X, cellPos.Y - 2] = new Tile(m_KnownTiles.Length);
-            m_TileMapLayer.SetCell(cellPos - new Vector2I(0, 2));
+            chunk.m_Tiles[cellPos.X, cellPos.Y - 2] = new Tile(m_KnownTiles.Length);
+            ClearVisualGrid(cellPos - new Vector2I(0, 2));
         }
-        if (cellPos.Y < m_Config.rows - 2)
+        if (cellPos.Y < chunk.m_Rows - 2)
         {
-            m_Tiles[cellPos.X, cellPos.Y + 2] = new Tile(m_KnownTiles.Length);
-            m_TileMapLayer.SetCell(cellPos + new Vector2I(0, 2));
+            chunk.m_Tiles[cellPos.X, cellPos.Y + 2] = new Tile(m_KnownTiles.Length);
+            ClearVisualGrid(cellPos + new Vector2I(0, 2));
         }
-        if (cellPos.X < m_Config.columns - 2)
+        if (cellPos.X < chunk.m_Columns - 2)
         {
-            m_Tiles[cellPos.X + 2, cellPos.Y] = new Tile(m_KnownTiles.Length);
-            m_TileMapLayer.SetCell(cellPos + new Vector2I(2, 0));
+            chunk.m_Tiles[cellPos.X + 2, cellPos.Y] = new Tile(m_KnownTiles.Length);
+            ClearVisualGrid(cellPos + new Vector2I(2, 0));
         }
 
         m_Visited.Clear();
-        if (cellPos.Y > 0) Constrain(cellPos - new Vector2I(0, 1), Direction.NONE);
-        if (cellPos.X > 0) Constrain(cellPos - new Vector2I(1, 0), Direction.NONE);
-        if (cellPos.X < m_Config.columns - 1) Constrain(cellPos + new Vector2I(1, 0), Direction.NONE);
-        if (cellPos.Y < m_Config.rows - 1) Constrain(cellPos + new Vector2I(0, 1), Direction.NONE);
+        if (cellPos.Y > 0) Constrain(ref chunk, cellPos - new Vector2I(0, 1), Direction.NONE);
+        m_Visited.Clear();
+        if (cellPos.X > 0) Constrain(ref chunk, cellPos - new Vector2I(1, 0), Direction.NONE);
+        m_Visited.Clear();
+        if (cellPos.X < chunk.m_Columns - 1) Constrain(ref chunk, cellPos + new Vector2I(1, 0), Direction.NONE);
+        m_Visited.Clear();
+        if (cellPos.Y < chunk.m_Rows - 1) Constrain(ref chunk, cellPos + new Vector2I(0, 1), Direction.NONE);
         m_Visited.Clear();
 
-        Constrain(cellPos, Direction.NONE);
+        Constrain(ref chunk, cellPos, Direction.NONE);
         m_Visited.Clear();
     }
 
-    private Vector2I Collapse()
+    //private void Reveal3D()
+    //{
+    //    for (int y = 0; y < m_Config.rows; y++)
+    //    {
+    //        for (int x = 0; x < m_Config.columns; x++)
+    //        {
+    //            m_GridMap.SetCellItem(new Vector3I(x, 0, y), m_Tiles[x, y].tileId);
+    //        }
+    //    }
+    //}
+
+    private bool firstCollapse = true;
+    Stopwatch uncollapseSw = new Stopwatch();
+    long uncollapseTotalTime = 0, uncollapseTotalCalled = 0;
+
+    Stopwatch pickSw = new Stopwatch();
+    long pickTotalTime = 0, pickTotalCalled = 0;
+    private Tuple<Vector2I, Vector2I> Collapse()
     {
-        List<Tuple<int, Vector2I>> entropyList = new List<Tuple<int, Vector2I>>();
-        for (int y = 0; y < m_Config.rows; y++)
+        collapseTotalCalled++;
+        ref Chunk chunk = ref m_Chunks[0, 0]; // TODO: Temporary
+        Vector2I selectedCell = Vector2I.Zero;
+        if (!firstCollapse)
         {
-            for (int x = 0; x < m_Config.columns; x++)
+            // Optimize
+            pickSw.Start();
+            List<Tuple<int, Vector2I>> entropyList = new List<Tuple<int, Vector2I>>();
+            for (int y = 0; y < chunk.m_Rows; y++)
             {
-                if (!m_Tiles[x, y].collapsed) entropyList.Add(new Tuple<int, Vector2I>(m_Tiles[x, y].GetEntropy(), new Vector2I(x, y)));
+                for (int x = 0; x < chunk.m_Columns; x++)
+                {
+                    if (!chunk.m_Tiles[x, y].collapsed) entropyList.Add(new Tuple<int, Vector2I>(chunk.m_Tiles[x, y].GetEntropy(), new Vector2I(x, y)));
+                }
             }
+            if (entropyList.Count == 0) { m_Finished = true; return new Tuple<Vector2I, Vector2I>(new Vector2I(-1, -1), new Vector2I(-1, -1)); }
+
+            List<Tuple<int, Vector2I>> sortedEntropy = entropyList.OrderBy(o => o.Item1).ToList();
+            List<Tuple<int, Vector2I>> lowestValueEntropyEntries = (from entry in sortedEntropy where entry.Item1 == sortedEntropy[0].Item1 select entry).ToList();
+            selectedCell = lowestValueEntropyEntries[m_Random.Next(lowestValueEntropyEntries.Count)].Item2;
+
+            pickSw.Stop();
+            long us = pickSw.ElapsedTicks / (Stopwatch.Frequency / (1000L * 1000L));
+            pickTotalTime += us;
+            pickTotalCalled++;
+            pickSw.Reset();
         }
-        if (entropyList.Count == 0) { m_Finished = true; return new Vector2I(-1, -1); }
+        else { selectedCell = new Vector2I(chunk.m_Columns / 2, chunk.m_Rows / 2); firstCollapse = false; }
 
-        List<Tuple<int, Vector2I>> sortedEntropy = entropyList.OrderBy(o => o.Item1).ToList();
-        List<Tuple<int, Vector2I>> lowestValueEntropyEntries = (from entry in sortedEntropy where entry.Item1 == sortedEntropy[0].Item1 select entry).ToList();
-
-        Vector2I selectedCell = lowestValueEntropyEntries[m_Random.Next(lowestValueEntropyEntries.Count)].Item2;
-        if (m_Tiles[selectedCell.X, selectedCell.Y].GetEntropy() != 0)
+        if (chunk.m_Tiles[selectedCell.X, selectedCell.Y].GetEntropy() != 0)
         {
-            int randomNum = m_Random.Next(m_Tiles[selectedCell.X, selectedCell.Y].options.Count);
-            int selectedOption = SelectOption(ref m_Tiles[selectedCell.X, selectedCell.Y]);
+            int randomNum = m_Random.Next(chunk.m_Tiles[selectedCell.X, selectedCell.Y].options.Count);
+            int selectedOption = SelectOption(ref chunk.m_Tiles[selectedCell.X, selectedCell.Y]);
+            chunk.m_Tiles[selectedCell.X, selectedCell.Y] = new Tile(selectedOption, new List<int>(), true);
+            SetVisualGrid(ref chunk, selectedCell, selectedOption);
 
-            m_Tiles[selectedCell.X, selectedCell.Y] = new Tile(selectedOption, new List<int>(), true);
-            m_TileMapLayer.SetCell(selectedCell, 0, m_KnownTiles[m_Tiles[selectedCell.X, selectedCell.Y].tileId].atlasCoords);
-            return selectedCell;
+            return new Tuple<Vector2I, Vector2I>(new Vector2I(chunk.m_IdX, chunk.m_IdY), selectedCell);
         }
         else
         {
-            UnCollapse(selectedCell);
-            return new Vector2I(-1, -1);
+            uncollapseSw.Start();
+            UnCollapse(ref chunk, selectedCell);
+            uncollapseSw.Stop();
+            long us = uncollapseSw.ElapsedTicks / (Stopwatch.Frequency / (1000L * 1000L));
+            uncollapseSw.Reset();
+            uncollapseTotalTime += us;
+
+            return new Tuple<Vector2I, Vector2I>(new Vector2I(-1, -1), new Vector2I(-1, -1));
         }
     }
+
+    Stopwatch collapseSw = new Stopwatch();
+    Stopwatch constrainSw = new Stopwatch();
+    long collapseTotalCalled = 0, collapseTotalTime = 0;
+    long constrainTotalCalled = 0, constrainTotalTime = 0;
 
     public void Cycle()
     {
         if (m_Finished) return;
-
         m_Visited = new List<Vector2I>();
-        Vector2I collapsedCell = Collapse();
-        if (collapsedCell.X == -1) return;
 
-        Constrain(collapsedCell, Direction.NONE);
+        collapseSw.Start();
+        Tuple<Vector2I, Vector2I> collapsedCell = Collapse();
+        collapseSw.Stop();
+        long usC = collapseSw.ElapsedTicks / (Stopwatch.Frequency / (1000L * 1000L));
+        collapseSw.Reset();
+        collapseTotalTime += usC;
+
+        if (collapsedCell.Item2.X == -1) { if (m_Finished) OnFinishGeneration(); return; }
+
+        constrainSw.Start();
+        Constrain(ref m_Chunks[collapsedCell.Item1.X, collapsedCell.Item1.Y], collapsedCell.Item2, Direction.NONE);
+        constrainSw.Stop();
+        long usConstrain = constrainSw.ElapsedTicks / (Stopwatch.Frequency / (1000L * 1000L));
+        constrainSw.Reset();
+        constrainTotalTime += usConstrain;
+    }
+
+    private void OnFinishGeneration()
+    {
+        //Reveal3D();
+        GD.Print("[Metrics]");
+        GD.Print("Total time taken: ", timeAcc / (1000.0f * 1000.0f), " seconds");
+        GD.Print("Cycle: {Count: ", cycleCount, ", Average time: ", timeAcc / (double)cycleCount, "us }");
+        GD.Print("Collapse: {Count: ", collapseTotalCalled, ", Average time: ", collapseTotalTime / (double)collapseTotalCalled, "us }");
+        GD.Print("> Entropy selection: {Count: ", pickTotalCalled, ", Average time: ", pickTotalTime / (double)pickTotalCalled, "us }");
+        GD.Print("> Constrain: {Count: ", constrainTotalCalled, ", Average time: ", constrainTotalTime / (double)constrainTotalCalled, "us }");
+        GD.Print("Uncollapse: {Count: ", uncollapseTotalCalled, ", Average time: ", uncollapseTotalTime / (double)uncollapseTotalCalled, "us }");
     }
 
     private long cycleCount = 0, timeAcc = 0;
-    private bool printedEnd = false;
     public override void _Process(double delta)
     {
         if (!m_Finished)
         {
             Stopwatch sw = new Stopwatch();
-            for (int i = 0; i < 25; i++)
+            for (int i = 0; i < 1; i++)
             {
                 if (m_Finished) break;
                 //if (Input.IsActionJustPressed("Cycle"))
                 //{
-                    sw.Start();
-                    Cycle();
-                    sw.Stop();
+                sw.Start();
+                Cycle();
+                sw.Stop();
                 //}
                 cycleCount++;
                 long microseconds = sw.ElapsedTicks / (Stopwatch.Frequency / (1000L * 1000L));
@@ -514,15 +676,6 @@ public partial class WaveFunctionCollapse : Node2D
                 sw.Reset();
             }
         }
-        else if (!printedEnd)
-        {
-            GD.Print("Finished generating");
-            GD.Print("Total time taken: ", timeAcc / (1000.0f * 1000.0f), " seconds");
-            GD.Print("Average time per cycle: ", timeAcc / (double)cycleCount, "us");
-            printedEnd = true;
-        }
-
-        
     }
 
     void OnTimerTimeout()

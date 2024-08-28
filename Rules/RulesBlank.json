@@ -1,0 +1,37 @@
+{
+	"Meta":
+	{
+		"Seed": 5,
+		"MeshSize": 6.4,
+		"ChunkRows": 5,
+		"ChunkColumns": 5,
+		"ChunkCountX": 5,
+		"ChunkCountY": 5,
+		"ModelFolder": "res://Tilesets/",
+	},
+	"Tiles":
+	[
+		"None",
+	],
+	"None":
+	{
+		"Model": "Flat.obj",
+		"Weight": 1,
+		"North":
+		[
+			"None",
+		],
+		"East":
+		[
+			"None",
+		],
+		"South":
+		[
+			"None",
+		],
+		"West":
+		[
+			"None",
+		]
+	},
+}

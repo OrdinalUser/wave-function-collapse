@@ -6,7 +6,7 @@
 [node name="Node" type="Node3D"]
 
 [node name="WFC" parent="." instance=ExtResource("1_uuocj")]
-RulesetFilePath = "res://Rules/Rules.json"
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
 
 [node name="TileCamera" type="Camera3D" parent="."]
 transform = Transform3D(0.707107, -0.408607, 0.577096, 0, 0.816138, 0.577858, -0.707107, -0.408607, 0.577096, 0, 250, 0)
@@ -17,3 +17,13 @@ script = ExtResource("2_81nbo")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -0.58722, 0.809427, 0, -0.809427, -0.58722, 19.8701, 12.9364, -1.53889)
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, -4.37114e-08, -4.37114e-08, 4.37114e-08, -4.37114e-08, 1, -4.37114e-08, -1, -4.37114e-08, 100, 0, 30)
+pixel_size = 1.0
+text = "Chunk X ->"
+
+[node name="Label3D2" type="Label3D" parent="."]
+transform = Transform3D(-8.74228e-08, -1, -4.37114e-08, 4.37114e-08, -4.37114e-08, 1, -1, 8.74228e-08, 4.37114e-08, -30, 0, -100)
+pixel_size = 1.0
+text = "Chunk Y ->"

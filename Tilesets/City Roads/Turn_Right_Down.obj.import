@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://62w0biqvs6b2"
+path="res://.godot/imported/Turn_Right_Down.obj-61e082b203fb254ff15aad6dca51a790.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Turn_Right_Down.obj-61e082b203fb254ff15aad6dca51a790.mesh"]
+
+source_file="res://Tilesets/City Roads/Turn_Right_Down.obj"
+dest_files=["res://.godot/imported/Turn_Right_Down.obj-61e082b203fb254ff15aad6dca51a790.mesh", "res://.godot/imported/Turn_Right_Down.obj-61e082b203fb254ff15aad6dca51a790.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

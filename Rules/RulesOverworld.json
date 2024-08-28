@@ -1,0 +1,289 @@
+{
+	"Meta":
+	{
+		"Seed": 5,
+		"MeshSize": 6.4,
+		"ChunkRows": 5,
+		"ChunkColumns": 5,
+		"ChunkCountX": 5,
+		"ChunkCountY": 5,
+		"ModelFolder": "res://Tilesets/3D Overworld/",
+	},
+	"Tiles":
+	[
+		"Field1", "Field2", "Forest1", "Forest2", "Path-Cross", "Path-H", "Path-V", "Path-Up", "River-H", "River-V", "River-Source", "Lake", "Pond"
+	],
+	"Field1":
+	{
+		"Model": "Overworld_Land_01.obj",
+		"Weight": 1,
+		"North":
+		[
+			"Field1",
+		],
+		"East":
+		[
+			"Field1",
+		],
+		"South":
+		[
+			"Field1",
+		],
+		"West":
+		[
+			"Field1",
+		]
+	},
+	"Field2":
+	{
+		"Model": "Overworld_Land_02.obj",
+		"Weight": 1,
+		"North":
+		[
+			"Field2",
+		],
+		"East":
+		[
+			"Field2",
+		],
+		"South":
+		[
+			"Field2",
+		],
+		"West":
+		[
+			"Field2",
+		]
+	},
+	"Forest1":
+	{
+		"Model": "Overworld_Land_04.obj",
+		"Weight": 1,
+		"North":
+		[
+			"Forest1",
+		],
+		"East":
+		[
+			"Forest1",
+		],
+		"South":
+		[
+			"Forest1",
+		],
+		"West":
+		[
+			"Forest1",
+		]
+	},
+	"Forest2":
+	{
+		"Model": "Overworld_Land_05.obj",
+		"Weight": 1,
+		"North":
+		[
+			"Forest2",
+		],
+		"East":
+		[
+			"Forest2",
+		],
+		"South":
+		[
+			"Forest2",
+		],
+		"West":
+		[
+			"Forest2",
+		]
+	},
+	"Path-Cross":
+	{
+		"Model": "Overworld_Land_05.obj",
+		"Weight": 1,
+		"North":
+		[
+			"Path-Cross",
+		],
+		"East":
+		[
+			"Path-Cross",
+		],
+		"South":
+		[
+			"Path-Cross",
+		],
+		"West":
+		[
+			"Path-Cross",
+		]
+	},
+	"Path-H":
+	{
+		"Model": "Overworld_Land_05.obj",
+		"Weight": 1,
+		"North":
+		[
+			"Path-H",
+		],
+		"East":
+		[
+			"Path-H",
+		],
+		"South":
+		[
+			"Path-H",
+		],
+		"West":
+		[
+			"Path-H",
+		]
+	},
+	"Path-V":
+	{
+		"Model": "Overworld_Land_05.obj",
+		"Weight": 1,
+		"North":
+		[
+			"Path-V",
+		],
+		"East":
+		[
+			"Path-V",
+		],
+		"South":
+		[
+			"Path-V",
+		],
+		"West":
+		[
+			"Path-V",
+		]
+	},
+	"Path-Up":
+	{
+		"Model": "Overworld_Land_05.obj",
+		"Weight": 1,
+		"North":
+		[
+			"Path-Up",
+		],
+		"East":
+		[
+			"Path-Up",
+		],
+		"South":
+		[
+			"Path-Up",
+		],
+		"West":
+		[
+			"Path-Up",
+		]
+	},
+	"River-H":
+	{
+		"Model": "Overworld_Land_05.obj",
+		"Weight": 1,
+		"North":
+		[
+			"River-H",
+		],
+		"East":
+		[
+			"River-H",
+		],
+		"South":
+		[
+			"River-H",
+		],
+		"West":
+		[
+			"River-H",
+		]
+	},
+	"River-V":
+	{
+		"Model": "Overworld_Land_05.obj",
+		"Weight": 1,
+		"North":
+		[
+			"River-V",
+		],
+		"East":
+		[
+			"River-V",
+		],
+		"South":
+		[
+			"River-V",
+		],
+		"West":
+		[
+			"River-V",
+		]
+	},
+	"River-Source":
+	{
+		"Model": "Overworld_Land_05.obj",
+		"Weight": 1,
+		"North":
+		[
+			"River-Source",
+		],
+		"East":
+		[
+			"River-Source",
+		],
+		"South":
+		[
+			"River-Source",
+		],
+		"West":
+		[
+			"River-Source",
+		]
+	},
+	"Lake":
+	{
+		"Model": "Overworld_Land_05.obj",
+		"Weight": 1,
+		"North":
+		[
+			"Lake",
+		],
+		"East":
+		[
+			"Lake",
+		],
+		"South":
+		[
+			"Lake",
+		],
+		"West":
+		[
+			"Lake",
+		]
+	},
+	"Pond":
+	{
+		"Model": "Overworld_Land_05.obj",
+		"Weight": 1,
+		"North":
+		[
+			"Pond",
+		],
+		"East":
+		[
+			"Pond",
+		],
+		"South":
+		[
+			"Pond",
+		],
+		"West":
+		[
+			"Pond",
+		]
+	},
+}

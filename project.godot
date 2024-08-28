@@ -20,6 +20,10 @@ config/icon="res://icon.svg"
 
 project/assembly_name="Wave Function Collapse"
 
+[editor]
+
+naming/script_name_casing=1
+
 [input]
 
 Cycle={

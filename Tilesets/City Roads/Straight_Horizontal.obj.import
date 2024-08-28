@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://bfgii4oi80j11"
+path="res://.godot/imported/Straight_Horizontal.obj-aca5c8f1bc78c88dd22334af94987778.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Straight_Horizontal.obj-aca5c8f1bc78c88dd22334af94987778.mesh"]
+
+source_file="res://Tilesets/City Roads/Straight_Horizontal.obj"
+dest_files=["res://.godot/imported/Straight_Horizontal.obj-aca5c8f1bc78c88dd22334af94987778.mesh", "res://.godot/imported/Straight_Horizontal.obj-aca5c8f1bc78c88dd22334af94987778.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

@@ -1,0 +1,163 @@
+{
+	"Meta":
+	{
+		"Seed": 5,
+		"MeshSize": 6.4,
+		"ChunkRows": 25,
+		"ChunkColumns": 25,
+		"ChunkCountX": 4,
+		"ChunkCountY": 4,
+		"ModelFolder": "res://Tilesets/City Roads/",
+	},
+	"Tiles":
+	[
+		"None", "Up", "Right", "Down", "Left", "Straight_H", "Straight_V"
+	],
+	"None":
+	{
+		"Model": "Flat.obj",
+		"Weight": 1,
+		"North":
+		[
+			"None", "Up", "Straight_H"
+		],
+		"East":
+		[
+			"None", "Right", "Straight_V"
+		],
+		"South":
+		[
+			"None", "Down", "Straight_H"
+		],
+		"West":
+		[
+			"None", "Left", "Straight_V"
+		]
+	},
+	"Up":
+	{
+		"Model": "Up.obj",
+		"Weight": 1,
+		"North":
+		[
+			"Straight_V"
+		],
+		"East":
+		[
+			"Straight_H"
+		],
+		"South":
+		[
+			"None", "Down"
+		],
+		"West":
+		[
+			"Straight_H"
+		]
+	},
+	"Right":
+	{
+		"Model": "Right.obj",
+		"Weight": 1,
+		"North":
+		[
+			"Straight_V"
+		],
+		"East":
+		[
+			"Straight_H"
+		],
+		"South":
+		[
+			"Straight_V"
+		],
+		"West":
+		[
+			"None", "Left"
+		]
+	},
+	"Down":
+	{
+		"Model": "Down.obj",
+		"Weight": 1,
+		"North":
+		[
+			"None", "Up"
+		],
+		"East":
+		[
+			 "Straight_H"
+		],
+		"South":
+		[
+			"Straight_V"
+		],
+		"West":
+		[
+			"Straight_H"
+		]
+	},
+	"Left":
+	{
+		"Model": "Left.obj",
+		"Weight": 1,
+		"North":
+		[
+			"Straight_V"
+		],
+		"East":
+		[
+			"None", "Right"
+		],
+		"South":
+		[
+			"Straight_V"
+		],
+		"West":
+		[
+			"Straight_H"
+		]
+	},
+	"Straight_H":
+	{
+		"Model": "Straight_Horizontal.obj",
+		"Weight": 1,
+		"North":
+		[
+			"None", "Up", "Straight_H"
+		],
+		"East":
+		[
+			"Straight_H", "Up", "Down", "Left"
+		],
+		"South":
+		[
+			"None", "Down", "Straight_H"
+		],
+		"West":
+		[
+			"Straight_H", "Up", "Down", "Right"
+		]
+	},
+	"Straight_V":
+	{
+		"Model": "Straight_Vertical.obj",
+		"Weight": 1,
+		"North":
+		[
+			"Straight_V", "Right", "Down", "Left"
+		],
+		"East":
+		[
+			"None", "Right", "Straight_V"
+		],
+		"South":
+		[
+			"Straight_V", "Up", "Left", "Right"
+		],
+		"West":
+		[
+			"None", "Left", "Straight_V"
+		]
+	},
+}

@@ -1,0 +1,163 @@
+{
+	"Meta":
+	{
+		"Seed": 5,
+		"MeshSize": 6.4,
+		"ChunkRows": 10,
+		"ChunkColumns": 10,
+		"ChunkCountX": 3,
+		"ChunkCountY": 3,
+		"ModelFolder": "res://Tilesets/City Roads/",
+	},
+	"Tiles":
+	[
+		"None", "Up", "Right", "Down", "Left", "Straight_V", "Straight_H"
+	],
+	"None":
+	{
+		"Model": "Flat.obj",
+		"Weight": 1,
+		"North":
+		[
+			"None", "Up", "Straight_H"
+		],
+		"East":
+		[
+			"None", "Right", "Straight_V"
+		],
+		"South":
+		[
+			"None", "Down", "Straight_H",
+		],
+		"West":
+		[
+			"None", "Left", "Straight_V"
+		]
+	},
+	"Up":
+	{
+		"Model": "Up.obj",
+		"Weight": 1,
+		"North":
+		[
+			"Right", "Down", "Left", "Straight_V"
+		],
+		"East":
+		[
+			"Up", "Down", "Left", "Straight_H"
+		],
+		"South":
+		[
+			"None", "Down", "Straight_H"
+		],
+		"West":
+		[
+			"Up", "Right", "Down", "Straight_H"
+		]
+	},
+	"Right":
+	{
+		"Model": "Right.obj",
+		"Weight": 1,
+		"North":
+		[
+			"Right", "Down", "Left", "Straight_V"
+		],
+		"East":
+		[
+			"Up", "Down", "Left", "Straight_H"
+		],
+		"South":
+		[
+			"Up", "Right", "Left", "Straight_V"
+		],
+		"West":
+		[
+			"None", "Left", "Straight_V"
+		]
+	},
+	"Down":
+	{
+		"Model": "Down.obj",
+		"Weight": 1,
+		"North":
+		[
+			"None", "Up", "Straight_H"
+		],
+		"East":
+		[
+			 "Up", "Down", "Left", "Straight_H"
+		],
+		"South":
+		[
+			"Up", "Right", "Left", "Straight_V"
+		],
+		"West":
+		[
+			"Up", "Right", "Down", "Straight_H"
+		]
+	},
+	"Left":
+	{
+		"Model": "Left.obj",
+		"Weight": 1,
+		"North":
+		[
+			"Right", "Down", "Left", "Straight_V"
+		],
+		"East":
+		[
+			"None", "Right", "Straight_V"
+		],
+		"South":
+		[
+			"Up", "Right", "Left", "Straight_V"
+		],
+		"West":
+		[
+			"Up", "Right", "Down", "Straight_H"
+		]
+	},
+	"Straight_H":
+	{
+		"Model": "Straight_Horizontal.obj",
+		"Weight": 1,
+		"North":
+		[
+			"None", "Up", "Straight_H"
+		],
+		"East":
+		[
+			"Straight_H", "Up", "Down", "Left"
+		],
+		"South":
+		[
+			"None", "Down", "Straight_H", 
+		],
+		"West":
+		[
+			"Straight_H", "Up", "Down", "Right"
+		]
+	},
+	"Straight_V":
+	{
+		"Model": "Straight_Vertical.obj",
+		"Weight": 1,
+		"North":
+		[
+			"Straight_V", "Right", "Down", "Left"
+		],
+		"East":
+		[
+			"None", "Right", "Straight_V"
+		],
+		"South":
+		[
+			"Straight_V", "Up", "Left", "Right"
+		],
+		"West":
+		[
+			"None", "Left", "Straight_V"
+		]
+	},
+}

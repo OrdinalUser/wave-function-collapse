@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://cf7cqsvf72r2w"
+path="res://.godot/imported/Overworld_Beach_13.obj-c9736eb6be85b9a6e058f623d118b97e.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Overworld_Beach_13.obj-c9736eb6be85b9a6e058f623d118b97e.mesh"]
+
+source_file="res://Tilesets/3D Overworld Tileset/tiles_beach/Overworld_Beach_13.obj"
+dest_files=["res://.godot/imported/Overworld_Beach_13.obj-c9736eb6be85b9a6e058f623d118b97e.mesh", "res://.godot/imported/Overworld_Beach_13.obj-c9736eb6be85b9a6e058f623d118b97e.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false
