@@ -1,29 +1,33 @@
-[gd_scene load_steps=3 format=3 uid="uid://crnqgo74pg71o"]
+[gd_scene format=3 uid="uid://crnqgo74pg71o"]
 
 [ext_resource type="PackedScene" uid="uid://bu3lq2bp0waoa" path="res://Scenes/WFC.tscn" id="1_uuocj"]
-[ext_resource type="Script" path="res://Scripts/TileCamera.cs" id="2_81nbo"]
+[ext_resource type="Script" uid="uid://bdmv42j0coeuk" path="res://Scripts/TileCamera.cs" id="2_81nbo"]
 
-[node name="Node" type="Node3D"]
+[node name="Node" type="Node3D" unique_id=2068327938]
 
-[node name="WFC" parent="." instance=ExtResource("1_uuocj")]
+[node name="WFC" parent="." unique_id=1579336864 instance=ExtResource("1_uuocj")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
+CYCLES_PER_PROCESS = 1
 
-[node name="TileCamera" type="Camera3D" parent="."]
+[node name="TileCamera" type="Camera3D" parent="." unique_id=123231185 node_paths=PackedStringArray("Board")]
 transform = Transform3D(0.707107, -0.408607, 0.577096, 0, 0.816138, 0.577858, -0.707107, -0.408607, 0.577096, 0, 250, 0)
 projection = 1
 current = true
 size = 100.0
 script = ExtResource("2_81nbo")
+Board = NodePath("../WFC")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1088769509]
 transform = Transform3D(1, 0, 0, 0, -0.58722, 0.809427, 0, -0.809427, -0.58722, 19.8701, 12.9364, -1.53889)
 
-[node name="Label3D" type="Label3D" parent="."]
+[node name="Label3D" type="Label3D" parent="." unique_id=1544034734]
 transform = Transform3D(1, -4.37114e-08, -4.37114e-08, 4.37114e-08, -4.37114e-08, 1, -4.37114e-08, -1, -4.37114e-08, 100, 0, 30)
+visible = false
 pixel_size = 1.0
 text = "Chunk X ->"
 
-[node name="Label3D2" type="Label3D" parent="."]
+[node name="Label3D2" type="Label3D" parent="." unique_id=270834107]
 transform = Transform3D(-8.74228e-08, -1, -4.37114e-08, 4.37114e-08, -4.37114e-08, 1, -1, 8.74228e-08, 4.37114e-08, -30, 0, -100)
+visible = false
 pixel_size = 1.0
 text = "Chunk Y ->"

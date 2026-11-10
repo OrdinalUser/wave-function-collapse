@@ -9,13 +9,13 @@ using System.Linq;
 //  Effect => Never ending cycle of placing and deleting
 //  Remedy: Lessen constrain depth, but that creates more work for the computer in the long run and also DOESN'T SOLVE THE PROBLEM!
 
-public partial class Wfc : Node
+public partial class Wfc : Node3D
 {
     /* Internal Config - avoid changing unless you know what you're doing */
     const int TILE_VOID_ID = 0;
     const int CONSTRAIN_MAX_DEPTH = 2; // 2 - 5 is good
     const int UNCOLLAPSE_MAX_DEPTH = 5; // 3 - 5 is good
-    int CYCLES_PER_PROCESS = 25;
+    [Export] int CYCLES_PER_PROCESS = 25; // Lower to slow generation down, e.g. for recording
 
     /* Types */
     public struct TilePrototype
@@ -377,6 +377,13 @@ public partial class Wfc : Node
     }
 
     /* External calls - may be used internally hehe */
+    public Aabb GetWorldBounds()
+    {
+        // Global-space box around the initial chunks, used by the camera to frame the board
+        Vector3 size = new Vector3(m_Config.initChunkCountX * m_Config.chunkSize.X, 1, m_Config.initChunkCountY * m_Config.chunkSize.Y) * m_Config.meshSize;
+        return GlobalTransform * new Aabb(Vector3.Zero, size);
+    }
+
     public void AddChunk(Vector2I chunkCoord)
     {
         // Add new chunk to be drawn and to the update queue
